@@ -11,11 +11,6 @@ wine_quality = fetch_ucirepo(id=186)
 X = wine_quality.data.features 
 y = wine_quality.data.targets 
 
-means = np.mean(X, axis=0)
-stds = np.std(X, axis=0)
-mins = np.min(X, axis=0)
-maxes = np.max(X, axis=0)
-
 def basic_data():
     print(f"Datapoints: {X.shape[0]}") 
     print(f"Features: {X.shape[1]}") 
@@ -25,14 +20,18 @@ def basic_data():
     print()
     
 def feature_data():
-    print("Feature means")
-    print(means)
-    print("Feature STD")
-    print(stds)
-    print("Feature mins")
-    print(mins)
-    print("Feature maxes")
-    print(maxes)
+    means = np.mean(X, axis=0)
+    stds = np.std(X, axis=0)
+    mins = np.min(X, axis=0)
+    maxes = np.max(X, axis=0)
+    figure, axes = plt.subplots(2, 2, figsize=(8, 8))
+    axes[0][0].bar(X.columns, means)
+    axes[0][1].bar(X.columns, stds)
+    axes[1][0].bar(X.columns, mins)
+    axes[1][1].bar(X.columns, maxes)
+    figure.tight_layout()
+    figure.autofmt_xdate(rotation=90)
+    plt.show()
 
 def graphs():
     figure, axes = plt.subplots(3, 4, figsize=(8, 8))

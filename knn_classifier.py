@@ -22,7 +22,7 @@ print(X_tr.shape, X_te.shape, y_tr.shape, y_te.shape)
 
 
 # k and weight value investigation
-# ks = np.arange(1, 21, 2)
+# ks = [1, 10, 50, 100, 250, 500]
 # weights = ['uniform', 'distance']
 # figure, axes = plt.subplots(1,2, figsize=(8, 8))
 # training_scores = {'uniform':[],'distance':[]}
@@ -57,16 +57,13 @@ print(X_tr.shape, X_te.shape, y_tr.shape, y_te.shape)
 
 
 # feature dropping
-# ks = np.arange(1, 11, 2)
-# ks = [1,3, 9, 11]
-# figure, axes = plt.subplots(1, figsize=(8, 8))
-# training_scores = {}
+# ks = [100, 200, 300]
+# figure, axes = plt.subplots(1, figsize=(6, 6))
+# plt.rcParams['font.size'] = 10
 # testing_scores = {}
-# col_train_scores = []
 # col_test_scores = []
 
 # for i, col in enumerate(X_raw.columns):
-#     training_scores[col] = []
 #     testing_scores[col] = []
 #     for k in ks:
 #         # choose p=1 because focusing on dropping noisy/irrelevant features
@@ -74,49 +71,42 @@ print(X_tr.shape, X_te.shape, y_tr.shape, y_te.shape)
 #         cur_X_tr = np.delete(X_tr, i, axis=1)
 #         cur_X_te = np.delete(X_te, i, axis=1)
 #         knn.fit(cur_X_tr, y_tr.ravel())
-#         train_pred = np.round(knn.predict(cur_X_tr))
-#         train_score = accuracy_score(y_tr, train_pred)
-
 #         test_pred = np.round(knn.predict(cur_X_te))
 #         test_score = accuracy_score(y_te, test_pred)
 
 #         print(f"k={k}, dropped {col}")
-#         print(f"train score={train_score}, test score={test_score}")
-#         training_scores[col].append(train_score)
+#         print(f"test score={test_score}")
 #         testing_scores[col].append(test_score)
 
-#     col_train_scores.append(np.mean(training_scores[col]))
-#     col_test_scores.append(np.mean(testing_scores[col]))
+#     col_test_scores.append(np.max(testing_scores[col]))
 
-# axes.plot(X_raw.columns, col_train_scores, color='green')
 # axes.plot(X_raw.columns, col_test_scores, color='red')
 # plt.xticks(rotation=90)
+# plt.tight_layout()
 # plt.show()
-# dropping sulfur dioxide yields best avg improvement
+# dropping sulfates gives best results
 
-# testing k value for dataset without sulfur dioxide
-ks = np.arange(1, 101, 4)
+
+# testing k value for dataset without sulphates
+ks = np.arange(1, 501, 25)
 figure, axes = plt.subplots(1, figsize=(8, 8))
-training_scores = []
 testing_scores = []
 for k in ks:
     # choose p=1 because focusing on dropping noisy/irrelevant features
     knn = KNeighborsClassifier(k, weights='distance', p=1)
-    cur_X_tr = np.delete(X_tr, [0, 8,10], axis=1)
-    cur_X_te = np.delete(X_te, [0, 8,10], axis=1)
+    cur_X_tr = np.delete(X_tr, [9], axis=1)
+    cur_X_te = np.delete(X_te, [9], axis=1)
     knn.fit(cur_X_tr, y_tr.ravel())
-    train_pred = np.round(knn.predict(cur_X_tr))
-    train_score = accuracy_score(y_tr, train_pred)
 
     test_pred = np.round(knn.predict(cur_X_te))
     test_score = accuracy_score(y_te, test_pred)
 
     print(f"k={k}")
-    print(f"train score={train_score}, test score={test_score}")
-    training_scores.append(train_score)
+    print(f"test score={test_score}")
     testing_scores.append(test_score)
-axes.plot(ks, training_scores, color='green')
 axes.plot(ks, testing_scores, color='red')
+axes.set_xlabel('k values')
+axes.set_ylabel('accuracy score')
 plt.show()
 
 # test with bootstrapping

@@ -9,7 +9,7 @@ scaler = StandardScaler()
 
 # fetch dataset 
 wine_quality = fetch_ucirepo(id=186) 
-seed = 47259885
+seed = 42
 
 X_raw = wine_quality.data.features
 y_raw = wine_quality.data.targets
@@ -17,8 +17,10 @@ y_raw = wine_quality.data.targets
 X = scaler.fit_transform(X_raw.to_numpy())
 y = y_raw.to_numpy()
 
-X_tr, X_te, y_tr, y_te = train_test_split(X, y, test_size=0.25, random_state=seed, shuffle=True)
-print(X_tr.shape, X_te.shape, y_tr.shape, y_te.shape)
+X_tr, X_te, y_tr, y_te = train_test_split(X, y, test_size=0.2, random_state=seed)
+X_tr, X_val, y_tr, y_val = train_test_split(X_tr, y_tr, test_size=0.25, random_state=seed)
+
+print(X_tr.shape, X_val.shape, X_te.shape, y_tr.shape, y_val.shape, y_te.shape)
 
 
 # k and weight value investigation
@@ -34,8 +36,8 @@ print(X_tr.shape, X_te.shape, y_tr.shape, y_te.shape)
 #         train_pred = np.round(knn.predict(X_tr))
 #         train_score = accuracy_score(y_tr, train_pred)
 
-#         test_pred = np.round(knn.predict(X_te))
-#         test_score = accuracy_score(y_te, test_pred)
+#         test_pred = np.round(knn.predict(X_val))
+#         test_score = accuracy_score(y_val, test_pred)
 
 #         print(f"k={k}, weight={weight}")
 #         print(f"train score={train_score}, test score={test_score}")
@@ -60,27 +62,27 @@ print(X_tr.shape, X_te.shape, y_tr.shape, y_te.shape)
 # ks = [100, 200, 300]
 # figure, axes = plt.subplots(1, figsize=(6, 6))
 # plt.rcParams['font.size'] = 10
-# testing_scores = {}
-# col_test_scores = []
+# val_scores = {}
+# col_val_scores = []
 
 # for i, col in enumerate(X_raw.columns):
-#     testing_scores[col] = []
+#     val_scores[col] = []
 #     for k in ks:
 #         # choose p=1 because focusing on dropping noisy/irrelevant features
 #         knn = KNeighborsClassifier(k, weights='distance', p=1)
 #         cur_X_tr = np.delete(X_tr, i, axis=1)
-#         cur_X_te = np.delete(X_te, i, axis=1)
+#         cur_X_val = np.delete(X_val, i, axis=1)
 #         knn.fit(cur_X_tr, y_tr.ravel())
-#         test_pred = np.round(knn.predict(cur_X_te))
-#         test_score = accuracy_score(y_te, test_pred)
+#         val_pred = np.round(knn.predict(cur_X_val))
+#         val_score = accuracy_score(y_val, val_pred)
 
 #         print(f"k={k}, dropped {col}")
-#         print(f"test score={test_score}")
-#         testing_scores[col].append(test_score)
+#         print(f"val score={val_score}")
+#         val_scores[col].append(val_score)
 
-#     col_test_scores.append(np.max(testing_scores[col]))
+#     col_val_scores.append(np.max(val_scores[col]))
 
-# axes.plot(X_raw.columns, col_test_scores, color='red')
+# axes.plot(X_raw.columns, col_val_scores, color='red')
 # plt.xticks(rotation=90)
 # plt.tight_layout()
 # plt.show()
@@ -90,21 +92,21 @@ print(X_tr.shape, X_te.shape, y_tr.shape, y_te.shape)
 # testing k value for dataset without sulphates
 ks = np.arange(1, 501, 25)
 figure, axes = plt.subplots(1, figsize=(8, 8))
-testing_scores = []
+val_scores = []
 for k in ks:
     # choose p=1 because focusing on dropping noisy/irrelevant features
     knn = KNeighborsClassifier(k, weights='distance', p=1)
-    cur_X_tr = np.delete(X_tr, [9], axis=1)
-    cur_X_te = np.delete(X_te, [9], axis=1)
+    cur_X_tr = np.delete(X_tr, [7], axis=1)
+    cur_X_val = np.delete(X_val, [7], axis=1)
     knn.fit(cur_X_tr, y_tr.ravel())
 
-    test_pred = np.round(knn.predict(cur_X_te))
-    test_score = accuracy_score(y_te, test_pred)
+    val_pred = np.round(knn.predict(cur_X_val))
+    val_score = accuracy_score(y_val, val_pred)
 
     print(f"k={k}")
-    print(f"test score={test_score}")
-    testing_scores.append(test_score)
-axes.plot(ks, testing_scores, color='red')
+    print(f"test score={val_score}")
+    val_scores.append(val_score)
+axes.plot(ks, val_scores, color='red')
 axes.set_xlabel('k values')
 axes.set_ylabel('accuracy score')
 plt.show()
